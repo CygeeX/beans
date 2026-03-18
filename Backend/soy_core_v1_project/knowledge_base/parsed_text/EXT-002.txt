@@ -1,0 +1,127 @@
+Soybean growth stages | UMN Extension
+Home
+Crop production
+Soybean
+Growing soybean
+Soybean growth stages
+The soybean is a dicotyledonous plant, meaning that it has two embryonic leaves, or cotyledons. Soybean plants exhibits epigeal emergence, as the cotyledons emerge above the soil surface.
+How soybeans develop
+During germination, an elongating hypocotyl pushes the cotyledons through the soil to the surface. Soybeans generally emerge best if they’re planted no deeper than 2 inches because of the energy required to push the large cotyledons through heavy soils.
+After emergence, the green cotyledons open and supply the developing leaves with stored energy, while capturing a small amount of light energy.
+Unifoliolate leaves develop first. Two of these single leaves appear directly opposite from one another above the cotyledons. All subsequent leaves are trifoliolates with three leaflets.
+Growth stages
+Two distinct growth phases characterize soybean development:
+Vegetative (V) stages
+:
+From emergence through flowering (Table 1).
+Reproductive (R) stages
+:
+From flowering through maturation (Table 2).
+Plant stages are determined by classifying leaf, flower, pod and/or seed development. Staging also requires identifying the node, or the part of the stem that a leaf attaches to (or was attached to).
+A leaf is considered fully developed when the leaf at the node directly above it (the next younger leaf) has expanded enough so the two lateral edges on each leaflet have partially unrolled and no longer touch.
+|
+Table 1: Vegetative stages
+Stage
+Description
+VE
+Emergence: Cotyledons above the soil surface.
+VC
+Cotyledon: Unifoliolate leaves sufficiently unroll, so the leaf edges do not touch.
+V1
+First node: Fully developed leaves at unifoliolate node.
+V(n)
+nth-node: The “n” represents the number of nodes on the main stem with fully developed leaves, beginning with the unifoliolate leaves.
+Source: Fehr and Caviness
+Table 2: Reproductive stages
+Stage
+Description
+R1
+Beginning bloom: One open flower at any node on the main stem.
+R2
+Full bloom: Open flower at one of the two uppermost nodes on the main stem with a fully developed flower.
+R3
+Beginning pod: Three-sixteenths-inch-long pod at one of the four uppermost nodes on the main stem with a fully developed leaf.
+R4
+Full pod: Three-quarter-inch-long pod at one of the four uppermost nodes on the main stem with a fully developed leaf.
+R5
+Beginning seed: One-eighth-inch-long seed in a pod at one of the four uppermost nodes on the main stem with a fully developed leaf.
+R6
+Full seed: Pod containing a green seed that fills the pod cavity at one of the four uppermost nodes on the main stem with a fully developed leaf.
+R7
+Beginning maturity: One normal pod on the main stem that has reached its mature pod color.
+R8
+Full maturity: 95 percent of the pods have reached their mature pod color. After R8, five to 10 days of drying weather are required to reduce soybean moisture levels to less than 15 percent.
+Source: Fehr and Caviness
+Table 3: Number of days between stages
+Stages
+Average number of days
+Range in number of days
+Planning to VE
+10 days
+5 to 15 days
+VE to VC
+5 days
+3 to 10 days
+VC to V1
+5 days
+3 to 10 days
+V1 to V2
+5 days
+3 to 10 days
+V2 to V3
+5 days
+3 to 10 days
+V3 to V4
+5 days
+3 to 8 days
+V4 to V5
+5 days
+3 to 8 days
+Beyond V5
+3 days
+2 to 5 days
+R1 to R2
+3 days
+0 to 7 days
+R2 to R3
+10 days
+5 to 15 days
+R3 to R4
+9 days
+5 to 15 days
+R4 to R5
+9 days
+4 to 26 days
+R5 to R6
+15 days
+11 to 20 days
+R6 to R7
+18 days
+9 to 30 days
+R7 to R8
+9 days
+7 to 18 days
+Application times for post-emergence herbicides often depend on soybean growth stages. To avoid injury, identify soybean development by growth stage rather than by height or the date they fill the rows.
+Environmental changes, such as temperature and rainfall, can greatly alter the height of soybeans without greatly affecting early reproductive growth stages such as flowering.
+Seth L. Naeve, Extension agronomist
+Reviewed in
+ 2018
+Crop production
+Soybean
+Soybean variety selection
+Soybean planting
+Growing soybean
+Soybean pest management
+Soybean harvest and storage
+Soybean seed quality
+Page survey
+©
+2026
+Regents of the University of Minnesota. All rights reserved.
+ The University of Minnesota is an equal opportunity educator and employer.
+ This work is supported by the U.S. Department of Agriculture’s National Institute of Food and Agriculture.
+Report Web Accessibility Issues
+|
+Privacy Statement
+|
+Staff intranet
