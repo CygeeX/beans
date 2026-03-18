@@ -75,6 +75,7 @@
 </template>
 
 <script setup>
+import { loginApi } from '@/api/user'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import WaveCanvas from '@/components/WaveCanvas.vue'
@@ -83,11 +84,20 @@ const router = useRouter()
 const form = ref({ username: '', password: '' })
 const error = ref('')
 
-const handleLogin = () => {
-  if (form.value.username === 'admin' && form.value.password === 'admin') {
+const handleLogin = async () => {
+  try {
+    const response = await loginApi({
+      username: form.value.username,
+      password: form.value.password
+    })
+    console.log('登录成功:', response.data)
+    error.value = ''
+    alert('登录成功！')
     router.push('/home')
-  } else {
-    error.value = '账号或密码错误，请重试'
+  } catch (err) {
+    console.error('登录失败:', err)
+    const errorMsg = err.response?.data?.detail || '登录失败，请重试'
+    error.value = errorMsg
     setTimeout(() => { error.value = '' }, 3000)
   }
 }

@@ -90,6 +90,7 @@
 </template>
 
 <script setup>
+import { registerApi } from '@/api/user'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import WaveCanvas from '@/components/WaveCanvas.vue'
@@ -103,15 +104,30 @@ const confirmMismatch = computed(() =>
   form.value.confirm.length > 0 && form.value.confirm !== form.value.password
 )
 
-const handleRegister = () => {
+const handleRegister = async () => {
   if (confirmMismatch.value) return
   if (!form.value.username.trim() || !form.value.password) {
     error.value = '请填写完整信息'
     setTimeout(() => { error.value = '' }, 3000)
     return
   }
-  success.value = '注册成功，正在跳转...'
-  setTimeout(() => { router.push('/') }, 1200)
+
+  try {
+    const response = await registerApi({
+      username: form.value.username,
+      password: form.value.password
+    })
+    console.log('注册成功:', response.data)
+    error.value = ''
+    success.value = '注册成功，正在跳转...'
+    setTimeout(() => { router.push('/') }, 1200)
+  } catch (err) {
+    console.error('注册失败:', err)
+    const errorMsg = err.response?.data?.detail || '注册失败，请重试'
+    error.value = errorMsg
+    success.value = ''
+    setTimeout(() => { error.value = '' }, 3000)
+  }
 }
 </script>
 
