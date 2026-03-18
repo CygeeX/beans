@@ -1,7 +1,7 @@
 # beans
 
 #### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
+**以下是 Gitee 平台说明，您可以替换此简介**
 
 
 #### 软件架构
@@ -19,12 +19,11 @@
 
 1.  前端项目启动：
 进入Frontend目录 在终端输入 npm run dev
-2.  后端项目启动
-
-
-
-
-
+2.  后端项目启动 
+打开终端命令行
+进入\Backend\soy_core_v1_project> 
+终端输入 docker-compose up --build
+docker-compose up -d
 #### 特技
 
 1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
