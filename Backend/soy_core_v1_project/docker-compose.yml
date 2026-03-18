@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  soy-api:
+    build: .
+    container_name: soy-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # 挂载 runs 目录到容器内，实现数据持久化
+      - ./runs:/app/runs
+      # 挂载静态文件目录
+      - ./static:/app/static
+      #挂载决策建议数据库
+      - ./soy_knowledge_base:/app/knowledge_base
+      #挂在用户数据库
+      - ./user_data:/app/user_data
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+      - UPLOAD_DIR=/app/runs
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
