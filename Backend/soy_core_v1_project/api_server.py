@@ -37,6 +37,7 @@ import hmac
 from typing import Optional
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from knowledge_base import get_advice_by_condition
 from pydantic import BaseModel
@@ -66,7 +67,13 @@ app = FastAPI(
     title="豆丰智测 | 大豆估产API V1",
     version="1.1"
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 健康检查接口：返回服务状态及 model.pkl 是否已就绪
 @app.get("/health")
