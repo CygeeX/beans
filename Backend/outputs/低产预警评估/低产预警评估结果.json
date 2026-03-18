@@ -1,0 +1,150 @@
+{
+  "schema_version": "v2_baseline_corrected",
+  "task": "低产预警 vs 非低产（二分类 LOOCV）",
+  "n_samples": 15,
+  "n_pos": 5,
+  "n_neg": 10,
+  "class_ratio": "5:10（低产:非低产）",
+  "label_definition": {
+    "positive_1": "低产（真实产量 bottom-5，与三分类低产标签一致）",
+    "negative_0": "非低产（中产+高产）",
+    "low_yield_fields": [
+      "T11",
+      "T12",
+      "T4",
+      "T8",
+      "T9"
+    ]
+  },
+  "evaluation": "LOOCV（Leave-One-Out，n=15）",
+  "generated_at": "2026-03-14",
+  "baselines": {
+    "majority_class_acc": 0.6666666666666666,
+    "majority_class_acc_display": "66.7%（始终预测非低产）",
+    "random_balanced_acc": 0.5,
+    "random_auc_roc": 0.5,
+    "pr_auc_no_skill": 0.3333,
+    "note": "二分类中不应与三分类随机基线(33.3%)比较"
+  },
+  "models": {
+    "LogisticRegression": {
+      "accuracy": 0.5333333333333333,
+      "accuracy_vs_majority_baseline": -0.1333333333333333,
+      "balanced_accuracy": 0.5,
+      "balanced_acc_vs_random_0_5": 0.0,
+      "precision_low_yield": 0.3333333333333333,
+      "recall_low_yield": 0.4,
+      "specificity": 0.6,
+      "f1_low_yield": 0.36363636363636365,
+      "auc_roc": 0.54,
+      "auc_roc_vs_random": 0.040000000000000036,
+      "pr_auc": 0.379047619047619,
+      "confusion_matrix": [
+        [
+          6,
+          4
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "note_cm": "行=真实，列=预测；[[TN,FP],[FN,TP]]",
+      "tn": 6,
+      "fp": 4,
+      "fn": 3,
+      "tp": 2
+    },
+    "LinearSVC": {
+      "accuracy": 0.4666666666666667,
+      "accuracy_vs_majority_baseline": -0.19999999999999996,
+      "balanced_accuracy": 0.45,
+      "balanced_acc_vs_random_0_5": -0.04999999999999999,
+      "precision_low_yield": 0.2857142857142857,
+      "recall_low_yield": 0.4,
+      "specificity": 0.5,
+      "f1_low_yield": 0.3333333333333333,
+      "auc_roc": 0.54,
+      "auc_roc_vs_random": 0.040000000000000036,
+      "pr_auc": 0.3759090909090909,
+      "confusion_matrix": [
+        [
+          5,
+          5
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "note_cm": "行=真实，列=预测；[[TN,FP],[FN,TP]]",
+      "tn": 5,
+      "fp": 5,
+      "fn": 3,
+      "tp": 2
+    },
+    "RandomForest": {
+      "accuracy": 0.6,
+      "accuracy_vs_majority_baseline": -0.06666666666666665,
+      "balanced_accuracy": 0.55,
+      "balanced_acc_vs_random_0_5": 0.050000000000000044,
+      "precision_low_yield": 0.4,
+      "recall_low_yield": 0.4,
+      "specificity": 0.7,
+      "f1_low_yield": 0.4,
+      "auc_roc": 0.72,
+      "auc_roc_vs_random": 0.21999999999999997,
+      "pr_auc": 0.48595238095238097,
+      "confusion_matrix": [
+        [
+          7,
+          3
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "note_cm": "行=真实，列=预测；[[TN,FP],[FN,TP]]",
+      "tn": 7,
+      "fp": 3,
+      "fn": 3,
+      "tp": 2
+    }
+  },
+  "best_model": "RandomForest",
+  "best_model_note": "主排序依据 AUC-ROC（最能反映模型真实区分能力，不受类别不均衡影响）",
+  "best_model_metrics": {
+    "balanced_accuracy": 0.55,
+    "auc_roc": 0.72,
+    "pr_auc": 0.48595238095238097,
+    "recall_low_yield": 0.4,
+    "specificity": 0.7,
+    "f1_low_yield": 0.4,
+    "confusion_matrix": [
+      [
+        7,
+        3
+      ],
+      [
+        3,
+        2
+      ]
+    ]
+  },
+  "multiclass_reference": {
+    "model": "LinearSVC",
+    "accuracy": 0.5333333333333333,
+    "macro_f1": 0.5055555555555555,
+    "bottom5_low_hit_rate": 0.8,
+    "adjacent_errors": 4,
+    "cross_grade_errors": 3,
+    "total_errors": 7
+  },
+  "output_files": {
+    "roc_curve": "D:\\Python深度学习\\豆丰智测最新版\\outputs\\低产预警评估\\ROC曲线_低产预警.png",
+    "pr_curve": "D:\\Python深度学习\\豆丰智测最新版\\outputs\\低产预警评估\\PR曲线_低产预警.png",
+    "binary_confusion_matrix": "D:\\Python深度学习\\豆丰智测最新版\\outputs\\低产预警评估\\二分类混淆矩阵_低产预警.png",
+    "multiclass_confusion_matrix": "D:\\Python深度学习\\豆丰智测最新版\\outputs\\产量等级识别评估\\三分类混淆矩阵.png"
+  }
+}
