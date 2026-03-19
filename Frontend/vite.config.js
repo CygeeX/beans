@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src')
     }
+<<<<<<< HEAD
   },
   server: {
     proxy: {
@@ -20,3 +21,7 @@ export default defineConfig({
     }
   }
 })
+=======
+  }
+})
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85

@@ -21,7 +21,11 @@ services:
       - UPLOAD_DIR=/app/runs
     restart: unless-stopped
     healthcheck:
+<<<<<<< HEAD
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+=======
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
       interval: 30s
       timeout: 10s
       retries: 3

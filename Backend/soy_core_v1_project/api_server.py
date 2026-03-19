@@ -125,10 +125,13 @@ async def train(
     yield_xlsx: UploadFile = File(..., description="真实产量表 yield.xlsx（含15块田产量）"),
     layout: Optional[UploadFile] = File(None, description="布局文件 layout.csv（可选）")
 ):
+<<<<<<< HEAD
     if not os.path.exists(MODEL_PATH):
         # 训练模式会生成新的模型，所以这里不检查模型是否存在
         pass
 
+=======
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
     run_id, run_dir = _new_run("train")
     in_dir = os.path.join(run_dir, "input")
     out_dir = os.path.join(run_dir, "outputs")
@@ -144,7 +147,10 @@ async def train(
 
     layout_final = _get_layout_path(layout_path)
 
+<<<<<<< HEAD
     # 调用训练函数
+=======
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
     outputs = run_train(
         ground_zip_path=ground_path,
         yield_xlsx_path=yield_path,
@@ -153,6 +159,7 @@ async def train(
         model_path=MODEL_PATH
     )
 
+<<<<<<< HEAD
     # ===== 添加决策建议（和 predict 一样的逻辑）=====
     advice_results = []
 
@@ -193,6 +200,10 @@ async def train(
         "outputs": out_files,
         "advice": advice_results  # 返回每个田块的建议
     }
+=======
+    out_files = {k: os.path.basename(v) for k, v in outputs.items() if isinstance(v, str)}
+    return {"run_id": run_id, "outputs": out_files}
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
 
 
 # 预测接口（用户用）：只需上传观测数据，加载已有模型直接完成推理，无需提供真实产量

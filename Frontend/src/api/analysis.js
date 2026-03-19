@@ -7,6 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
  * @returns {Promise} 返回训练结果
  */
 export async function trainModel(formData) {
+<<<<<<< HEAD
   // 添加超时控制
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 800000); // 800秒超时
@@ -26,6 +27,20 @@ export async function trainModel(formData) {
     }
 
     const result = await response.json();
+=======
+  try {
+    const response = await fetch(`${API_BASE_URL}/train`, {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || '训练失败')
+    }
+
+    const result = await response.json()
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
 
     // 保存到历史记录
     saveToHistory({
@@ -38,6 +53,7 @@ export async function trainModel(formData) {
         { name: '模型参数.csv', filename: 'model_params.csv' }
       ],
       summary: result.summary || null
+<<<<<<< HEAD
     });
 
     return result;
@@ -52,6 +68,14 @@ export async function trainModel(formData) {
     
     console.error('训练模型失败:', error);
     throw error;
+=======
+    })
+
+    return result
+  } catch (error) {
+    console.error('训练模型失败:', error)
+    throw error
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
   }
 }
 

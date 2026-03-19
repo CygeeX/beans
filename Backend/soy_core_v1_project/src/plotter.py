@@ -14,6 +14,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+<<<<<<< HEAD
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.font_manager as fm
@@ -32,6 +33,14 @@ def setup_font():
         print('字体文件不存在')
 
 setup_font()
+=======
+
+
+def _setup_cn_font():
+    # 中文字体兼容：按顺序尝试
+    plt.rcParams["font.sans-serif"] = ["SimHei", "Microsoft YaHei", "Arial Unicode MS", "DejaVu Sans"]
+    plt.rcParams["axes.unicode_minus"] = False
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
 
 
 # 热力图生成：将15块田产量映射到3×5空间网格，绿色系配色，实线框标注Top3、虚线框标注Bottom3
@@ -41,7 +50,11 @@ def plot_heatmap_grid(df_pred_cn: pd.DataFrame, layout_csv_path: str, out_png: s
     - 每格显示：T编号 + 预测值
     - Top3/Bottom3 用加粗/虚线边框标注
     '''
+<<<<<<< HEAD
     setup_font()
+=======
+    _setup_cn_font()
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
 
     layout = pd.read_csv(layout_csv_path)
     merged = layout.merge(df_pred_cn[["田块", "预测产量(kg/100株)"]],
@@ -118,7 +131,11 @@ def plot_top_bottom_compare(df_train: pd.DataFrame, df_pred_cn: pd.DataFrame, ou
     '''
     高/低产田块关键特征对比（中文+绿色）
     '''
+<<<<<<< HEAD
     setup_font()
+=======
+    _setup_cn_font()
+>>>>>>> 1a568c4c39025495d55649b0d6763f5b7606ab85
 
     merged = df_train.merge(df_pred_cn[["田块", "预测产量(kg/100株)"]],
                             left_on="field_id", right_on="田块", how="left")
