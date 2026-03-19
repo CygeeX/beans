@@ -1,0 +1,16 @@
+原文件名,中文名称,来源类别,是否被SQLite/CSV索引引用,是否已安全改名,说明
+EXT-001.txt,爱荷华州大豆施肥技术.txt,美国推广资料,是（parsed_text_index.csv引用）,否（保留原名）,被kb.sqlite和parsed_text_index.csv引用，改名须同步更新两处
+EXT-002.txt,明尼苏达大豆生长阶段.txt,美国推广资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+FAO-001.txt,FAO大豆水分管理.txt,粮农组织资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+HLJ-001.txt,2026黑龙江备春耕大豆生产技术.txt,黑龙江省农业资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+HLJ-002.txt,2025黑龙江主要粮食作物科学施肥技术.txt,黑龙江省农业资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+HLJ-003.txt,2026黑龙江农作物病虫草鼠害防控意见.txt,黑龙江省农业资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+HLJ-005.txt,2025黑龙江农业主推技术（部分大豆页）.txt,黑龙江省农业资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+HLJ-006.txt,2025黑龙江农作物栽培技术模式汇编（大豆部分）.txt,黑龙江省农业资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+HLJ-007.txt,2025黑龙江科学施肥增效项目实施方案.txt,黑龙江省农业资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+MOA-001.txt,大豆根瘤菌接种及配套施肥技术指导意见.txt,农业农村部资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+MOA-002.txt,农事指导索引页.txt,农业农村部资料,是（parsed_text_index.csv引用）,否（保留原名）,同上
+parsed_text_index.csv,解析文本索引表.csv（别名），原名保留,索引文件,是（代码引用），否（原名保留）,build_knowledge_base.py等引用此文件名
+evidence_master.csv,证据主表.csv（别名），原名保留,知识库证据表,是（api_server.py等引用），否（原名保留）,核心数据表不可直接改名
+kb.sqlite,知识库数据库.sqlite（别名），原名保留,SQLite数据库,是（api_server.py等引用），否（原名保留）,生产级数据库，不可直接改名
+download_manifest.csv,下载清单.csv（别名），原名保留,下载记录表,是（build_knowledge_base.py引用），否（原名保留）,构建脚本引用此文件

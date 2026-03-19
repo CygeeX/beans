@@ -1,0 +1,16 @@
+﻿threshold_id,rule_id,metric,comparator,value,unit,value_source,evidence_ids,notes
+TH-001,R-F-001,N_per_hm2,range,30-45,kg/hm2,固定阈值（黑龙江2026年指导意见）,EV-001,一般大豆田
+TH-002,R-F-001,P2O5_per_hm2,range,80-110,kg/hm2,固定阈值（黑龙江2026年指导意见）,EV-001,一般大豆田
+TH-003,R-F-001,K2O_per_hm2,range,40-55,kg/hm2,固定阈值（黑龙江2026年指导意见）,EV-001,一般大豆田
+TH-004,R-F-003,spad_last,<=,P30,无量纲（分位数）,批次内P30分位数（启发式）,EV-002;EV-018,经验性阈值，无外部农学参考
+TH-005,R-N-001,inoculation_timing_h,<=,12,小时（播种前）,固定阈值（农业农村部指导意见）,EV-016,播前12小时内拌种
+TH-006,R-F-004,organic_matter_pct,<,1.0,%,固定阈值（农业农村部指导意见）,EV-020,低于1%应增施有机肥
+TH-007,R-W-002,soil_water_depletion_pct,<=,50,%（有效水耗竭率）,固定阈值（FAO）,EV-024,鼓粒期不超过50%耗竭
+TH-008,R-M-001,height_mean_slope,>,P70,cm/时间步（分位数）,批次内P70分位数（启发式）,EV-007,经验性阈值：株高增长显著偏快时触发
+TH-009,R-F-002,Mo_foliar_concentration,==,0.2,%（钼酸铵浓度）,固定阈值（农业农村部指导意见）,EV-019,花期叶面喷施标准浓度
+TH-010,R-F-002,foliar_spray_volume,range,40-50,kg/亩,固定阈值（农业农村部指导意见）,EV-019,每次叶面喷施用水量
+TH-011,R-F-006,N_per_hm2_rotation,range,30-50,kg/hm²（尿素折纯N）,固定阈值（HLJ-005 2025年主推技术第31项）,EV-030,玉米-大豆轮作中等肥力地块参考值
+TH-012,R-F-006,controlled_release_N_ratio,>=,30,%（占氮肥总量）,固定阈值（HLJ-007 省级施肥增效方案）,EV-036,控释氮肥比例不低于30%
+TH-013,R-F-007,foliar_spray_volume_per_mu,>=,30,L/亩,固定阈值（HLJ-006 2025年栽培技术模式汇编）,EV-033,一喷多促每次喷施用水量不少于30L/亩
+TH-014,R-F-007,foliar_spray_interval_days,range,7-10,天,固定阈值（HLJ-006 2025年栽培技术模式汇编）,EV-033,一喷多促间隔天数
+TH-015,R-N-003,inoculation_timing_h_liquid,<=,2,小时（播前，液体菌剂）,固定阈值（HLJ-006 2025年栽培技术模式汇编）,EV-035,液体根瘤菌剂播前2小时内拌种（MOA-001要求≤12小时，此处更严格）
