@@ -27,6 +27,7 @@ export async function trainModel(formData) {
 
     const result = await response.json();
 
+    // 保存到历史记录
     saveToHistory({
       runId: result.run_id,
       type: 'train',
