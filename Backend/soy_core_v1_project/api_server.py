@@ -257,7 +257,7 @@ async def predict(
         with open(mgmt_json_path, "r", encoding="utf-8") as f:
             management_advice = json.load(f)
 
-    NEW_EVAL_PATH = "/app/outputs/展示指标_新版.json"
+    NEW_EVAL_PATH = "/app/knowledge_base/展示指标_新版.json"
     evaluation = {}
     
     if os.path.exists(NEW_EVAL_PATH):
