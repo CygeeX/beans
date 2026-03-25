@@ -118,6 +118,99 @@ def _get_layout_path(uploaded_layout_path: Optional[str]) -> str:
     raise HTTPException(status_code=400, detail="未提供 layout.csv，且项目中找不到默认 input/layout.csv")
 
 
+def build_summary_from_csv(csv_path: str) -> Optional[dict]:
+    """
+    从预测结果CSV文件中计算摘要统计信息
+
+    参数:
+        csv_path: 预测结果_中文.csv 的路径
+
+    返回:
+        包含 avgYield, maxBlock, maxYield, minBlock, minYield, unit 的字典
+        如果文件不存在或数据无效，返回 None
+    """
+    print(f"[summary] ========== 开始计算 summary ==========")
+    print(f"[summary] csv_path = {csv_path}")
+
+    if not csv_path:
+        print(f"[summary] 错误: csv_path 为空")
+        return None
+
+    try:
+        # 检查文件是否存在
+        file_exists = os.path.exists(csv_path)
+        print(f"[summary] 文件是否存在 = {file_exists}")
+
+        if not file_exists:
+            print(f"[summary] 错误: CSV文件不存在: {csv_path}")
+            return None
+
+        import pandas as pd
+
+        # 读取CSV，自动处理BOM
+        df = pd.read_csv(csv_path, encoding='utf-8-sig')
+        print(f"[summary] CSV总行数 = {len(df)}")
+        print(f"[summary] columns = {df.columns.tolist()}")
+
+        # 检查必需的列是否存在
+        has_field_col = '田块' in df.columns
+        has_yield_col = '预测产量(kg/100株)' in df.columns
+        print(f"[summary] 是否有'田块'列 = {has_field_col}")
+        print(f"[summary] 是否有'预测产量(kg/100株)'列 = {has_yield_col}")
+
+        if not has_field_col or not has_yield_col:
+            print(f"[summary] 错误: CSV缺少必需的列")
+            print(f"[summary] 当前列: {df.columns.tolist()}")
+            return None
+
+        # 过滤掉空值和非法值
+        df_valid = df[['田块', '预测产量(kg/100株)']].dropna()
+        valid_rows = len(df_valid)
+        print(f"[summary] valid_rows = {valid_rows}")
+
+        if valid_rows == 0:
+            print("[summary] 错误: CSV中没有有效数据")
+            return None
+
+        # 计算统计信息（直接使用CSV原始值，不做额外换算）
+        avg_yield = round(float(df_valid['预测产量(kg/100株)'].mean()), 3)
+
+        # 找到最大值和最小值对应的行
+        max_idx = df_valid['预测产量(kg/100株)'].idxmax()
+        min_idx = df_valid['预测产量(kg/100株)'].idxmin()
+
+        max_block = str(df_valid.loc[max_idx, '田块'])
+        max_yield = round(float(df_valid.loc[max_idx, '预测产量(kg/100株)']), 3)
+
+        min_block = str(df_valid.loc[min_idx, '田块'])
+        min_yield = round(float(df_valid.loc[min_idx, '预测产量(kg/100株)']), 3)
+
+        # 构建返回结果
+        summary = {
+            "avgYield": avg_yield,
+            "maxBlock": max_block,
+            "maxYield": max_yield,
+            "minBlock": min_block,
+            "minYield": min_yield,
+            "unit": "kg/100株"
+        }
+
+        print(f"[summary] 计算成功:")
+        print(f"[summary]   avgYield = {avg_yield}")
+        print(f"[summary]   maxBlock = {max_block}, maxYield = {max_yield}")
+        print(f"[summary]   minBlock = {min_block}, minYield = {min_yield}")
+        print(f"[summary] summary = {summary}")
+        print(f"[summary] ========== summary 计算完成 ==========")
+
+        return summary
+
+    except Exception as e:
+        print(f"[summary] 异常: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
 # 训练接口（管理员用）：接收观测数据和真实产量，触发完整训练流程，返回 run_id 和输出文件列表
 @app.post("/train")
 async def train(
@@ -153,19 +246,24 @@ async def train(
         model_path=MODEL_PATH
     )
 
+    print(f"[train response] run_train 返回的 outputs = {outputs}")
+
     # ===== 添加决策建议（和 predict 一样的逻辑）=====
     advice_results = []
 
-    # 训练模式下，预测结果文件在 outputs 中
-    pred_csv_path = os.path.join(out_dir, "预测结果_中文.csv")
-    if os.path.exists(pred_csv_path):
+    # 使用 run_train 返回的 CSV 路径，而不是自己拼接
+    pred_csv_path = outputs.get("predictions_csv")
+    print(f"[train response] pred_csv_path = {pred_csv_path}")
+    print(f"[train response] CSV 文件是否存在 = {os.path.exists(pred_csv_path) if pred_csv_path else False}")
+
+    if pred_csv_path and os.path.exists(pred_csv_path):
         import pandas as pd
         pred_df = pd.read_csv(pred_csv_path)
-        
+
         for _, row in pred_df.iterrows():
             field_id = row.get("田块", "")
             yield_pred = row.get("预测产量(kg/100株)", 0)
-            
+
             # 根据产量判断长势
             if yield_pred < 250:
                 condition = "低产"
@@ -173,26 +271,61 @@ async def train(
                 condition = "高产"
             else:
                 condition = "正常"
-            
+
             # 从知识库获取建议
             advice_data = get_advice_by_condition(condition)
             advice_list = advice_data.get("advice", [])
-            
+
             advice_results.append({
                 "field_id": field_id,
                 "yield_pred": float(yield_pred),
                 "condition": condition,
                 "advice": advice_list
             })
+    else:
+        print(f"[train response] 警告: CSV 文件不存在或路径为空")
     
-    # 返回结果
+    # ========== 计算 summary ==========
+    print(f"[train response] ========== 准备计算 summary ==========")
+    print(f"[train response] outputs (原始完整路径) = {outputs}")
+
+    # 获取 CSV 完整路径
+    pred_csv_path = outputs.get("predictions_csv")
+    print(f"[train response] pred_csv_path = {pred_csv_path}")
+
+    # 计算 summary
+    summary = None
+    if pred_csv_path:
+        print(f"[train response] CSV 文件是否存在 = {os.path.exists(pred_csv_path)}")
+        summary = build_summary_from_csv(pred_csv_path)
+    else:
+        print(f"[train response] 错误: pred_csv_path 为 None，无法计算 summary")
+
+    print(f"[train response] summary 计算结果 = {summary}")
+
+    # 处理文件名（只用于返回给前端的 outputs 字段）
     out_files = {k: os.path.basename(v) for k, v in outputs.items() if isinstance(v, str)}
-    
-    return {
+    print(f"[train response] out_files (只有文件名) = {out_files}")
+
+    # 构建返回结果
+    result = {
         "run_id": run_id,
         "outputs": out_files,
-        "advice": advice_results  # 返回每个田块的建议
+        "advice": advice_results
     }
+
+    # 添加 summary（如果计算成功）
+    if summary:
+        result["summary"] = summary
+        print(f"[train response] ✅ summary 已添加到返回结果")
+    else:
+        print(f"[train response] ⚠️ 警告: summary 为 None，未添加到返回结果")
+
+    print(f"[train response] ========== 最终返回结果 ==========")
+    print(f"[train response] result.keys() = {list(result.keys())}")
+    print(f"[train response] final response payload = {json.dumps(result, ensure_ascii=False, indent=2)}")
+
+    return result
 
 
 # 预测接口（用户用）：只需上传观测数据，加载已有模型直接完成推理，无需提供真实产量
@@ -224,32 +357,40 @@ async def predict(
         model_path=MODEL_PATH
     )
 
+    print(f"[predict response] run_predict 返回的 outputs = {outputs}")
+
     advice_results = []
 
-    pred_csv_path = os.path.join(out_dir, "预测结果_中文.csv")
-    if os.path.exists(pred_csv_path):
+    # 使用 run_predict 返回的 CSV 路径，而不是自己拼接
+    pred_csv_path = outputs.get("predictions_csv")
+    print(f"[predict response] pred_csv_path = {pred_csv_path}")
+    print(f"[predict response] CSV 文件是否存在 = {os.path.exists(pred_csv_path) if pred_csv_path else False}")
+
+    if pred_csv_path and os.path.exists(pred_csv_path):
         import pandas as pd
         pred_df = pd.read_csv(pred_csv_path)
-        
+
         for _, row in pred_df.iterrows():
             field_id = row.get("田块", "")
             yield_pred = row.get("预测产量(kg/100株)", 0)
-            
+
             if yield_pred < 250:
                 condition = "低产"
             elif yield_pred > 400:
                 condition = "高产"
             else:
                 condition = "正常"
-            
+
             advice = get_advice_by_condition(condition)
-            
+
             advice_results.append({
                 "field_id": field_id,
                 "yield_pred": float(yield_pred),
                 "condition": condition,
                 "advice": advice.get("advice", [])
             })
+    else:
+        print(f"[predict response] 警告: CSV 文件不存在或路径为空")
     
     mgmt_json_path = os.path.join(out_dir, "管理建议_中文.json")
     management_advice = []
@@ -259,7 +400,7 @@ async def predict(
 
     NEW_EVAL_PATH = "/app/knowledge_base/展示指标_新版.json"
     evaluation = {}
-    
+
     if os.path.exists(NEW_EVAL_PATH):
         # 如果新文件存在，使用新文件
         with open(NEW_EVAL_PATH, "r", encoding="utf-8") as f:
@@ -273,12 +414,46 @@ async def predict(
                 evaluation = json.load(f)
             print(f"使用旧评估文件: {eval_json_path}")
 
+    # ========== 计算 summary ==========
+    print(f"[predict response] ========== 准备计算 summary ==========")
+    print(f"[predict response] outputs (原始完整路径) = {outputs}")
+
+    # 获取 CSV 完整路径
+    pred_csv_path = outputs.get("predictions_csv")
+    print(f"[predict response] pred_csv_path = {pred_csv_path}")
+
+    # 计算 summary
+    summary = None
+    if pred_csv_path:
+        print(f"[predict response] CSV 文件是否存在 = {os.path.exists(pred_csv_path)}")
+        summary = build_summary_from_csv(pred_csv_path)
+    else:
+        print(f"[predict response] 错误: pred_csv_path 为 None，无法计算 summary")
+
+    print(f"[predict response] summary 计算结果 = {summary}")
+
+    # 处理文件名（只用于返回给前端的 outputs 字段）
     out_files = {k: os.path.basename(v) for k, v in outputs.items() if isinstance(v, str)}
-    
-    return {
+    print(f"[predict response] out_files (只有文件名) = {out_files}")
+
+    # 构建返回结果
+    result = {
         "run_id": run_id,
         "outputs": out_files
     }
+
+    # 添加 summary（如果计算成功）
+    if summary:
+        result["summary"] = summary
+        print(f"[predict response] ✅ summary 已添加到返回结果")
+    else:
+        print(f"[predict response] ⚠️ 警告: summary 为 None，未添加到返回结果")
+
+    print(f"[predict response] ========== 最终返回结果 ==========")
+    print(f"[predict response] result.keys() = {list(result.keys())}")
+    print(f"[predict response] final response payload = {json.dumps(result, ensure_ascii=False, indent=2)}")
+
+    return result
 
 # 展示指标接口：读取预计算的评估指标配置文件，供前端直接展示核心精度数据
 @app.get("/display_metrics")

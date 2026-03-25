@@ -12,7 +12,7 @@ export async function trainModel(formData) {
   const timeoutId = setTimeout(() => controller.abort(), 1500000); // 1500秒 = 25分钟
   
   try {
-    const response = await fetch(`${API_BASE_URL}/train`, {
+    const response = await fetch(`/api/train`, {
       method: 'POST',
       body: formData,
       signal: controller.signal
@@ -27,18 +27,32 @@ export async function trainModel(formData) {
 
     const result = await response.json();
 
+    console.log('[analysis api] trainModel 收到响应')
+    console.log('[analysis api] result =', result)
+    console.log('[analysis api] result.summary =', result.summary)
+    console.log('[analysis api] result.outputs =', result.outputs)
+    console.log('[analysis api] result.files =', result.files)
+
     // 保存到历史记录
-    saveToHistory({
+    const historyPayload = {
       runId: result.run_id,
       type: 'train',
       time: new Date().toLocaleString('zh-CN'),
       status: 'completed',
-      files: result.files || [
+      // 注意：后端返回的是 outputs，不是 files
+      files: result.outputs || result.files || [
         { name: '训练结果报告.xlsx', filename: 'train_result.xlsx' },
         { name: '模型参数.csv', filename: 'model_params.csv' }
       ],
       summary: result.summary || null
-    });
+    }
+
+    console.log('[analysis api] 准备保存历史记录')
+    console.log('[analysis api] historyPayload.summary =', historyPayload.summary)
+
+    saveToHistory(historyPayload);
+
+    console.log('[analysis api] 历史记录已保存')
 
     return result;
     
@@ -62,7 +76,7 @@ export async function trainModel(formData) {
  */
 export async function predictYield(formData) {
   try {
-    const response = await fetch(`${API_BASE_URL}/predict`, {
+    const response = await fetch(`/api/predict`, {
       method: 'POST',
       body: formData
     })
@@ -74,24 +88,32 @@ export async function predictYield(formData) {
 
     const result = await response.json()
 
+    console.log('[analysis api] predictYield 收到响应')
+    console.log('[analysis api] result =', result)
+    console.log('[analysis api] result.summary =', result.summary)
+    console.log('[analysis api] result.outputs =', result.outputs)
+    console.log('[analysis api] result.files =', result.files)
+
     // 保存到历史记录
-    saveToHistory({
+    const historyPayload = {
       runId: result.run_id,
       type: 'predict',
       time: new Date().toLocaleString('zh-CN'),
       status: 'completed',
-      files: result.files || [
+      // 注意：后端返回的是 outputs，不是 files
+      files: result.outputs || result.files || [
         { name: '预测结果报告.xlsx', filename: 'predict_result.xlsx' },
         { name: '详细分析数据.csv', filename: 'analysis_data.csv' }
       ],
-      summary: result.summary || {
-        avgYield: 2350,
-        maxBlock: 'A3',
-        maxYield: 2680,
-        minBlock: 'B7',
-        minYield: 2120
-      }
-    })
+      summary: result.summary || null
+    }
+
+    console.log('[analysis api] 准备保存历史记录')
+    console.log('[analysis api] historyPayload.summary =', historyPayload.summary)
+
+    saveToHistory(historyPayload)
+
+    console.log('[analysis api] 历史记录已保存')
 
     return result
   } catch (error) {
@@ -134,7 +156,13 @@ export async function downloadResult(runId, filename) {
  * @param {Object} record - 分析记录
  */
 function saveToHistory(record) {
+  console.log('[history] saveToHistory 被调用')
+  console.log('[history] record =', record)
+  console.log('[history] record.summary =', record.summary)
+
   const history = JSON.parse(localStorage.getItem('analysisHistory') || '[]')
+  console.log('[history] 当前历史记录数量 =', history.length)
+
   history.unshift(record)
 
   // 只保留最近 20 条记录
@@ -143,6 +171,12 @@ function saveToHistory(record) {
   }
 
   localStorage.setItem('analysisHistory', JSON.stringify(history))
+  console.log('[history] 历史记录已保存到 localStorage')
+  console.log('[history] 新的历史记录数量 =', history.length)
+
+  // 验证保存是否成功
+  const saved = JSON.parse(localStorage.getItem('analysisHistory') || '[]')
+  console.log('[history] 验证: 最新记录的 summary =', saved[0]?.summary)
 }
 
 /**

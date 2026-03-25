@@ -53,7 +53,7 @@
 
       <!-- 当前查看的结果详情 -->
       <div v-if="currentResult" class="result-detail">
-        <h2>分析结果详情</h2>
+        <h2>最新分析结果详情</h2>
         <div class="detail-card">
           <div class="detail-header">
             <h3>{{ currentResult.time }} 分析结果</h3>
@@ -84,17 +84,21 @@
             <div class="summary-grid">
               <div class="summary-item">
                 <div class="summary-label">平均预测产量</div>
-                <div class="summary-value">{{ currentResult.summary.avgYield }} kg/亩</div>
+                <div class="summary-value">{{ formatYield(currentResult.summary.avgYield) }} {{ currentResult.summary.unit || 'kg/100株' }}</div>
               </div>
               <div class="summary-item">
                 <div class="summary-label">最高产量地块</div>
-                <div class="summary-value">{{ currentResult.summary.maxBlock }} ({{ currentResult.summary.maxYield }} kg)</div>
+                <div class="summary-value">{{ currentResult.summary.maxBlock }} ({{ formatYield(currentResult.summary.maxYield) }} {{ currentResult.summary.unit || 'kg/100株' }})</div>
               </div>
               <div class="summary-item">
                 <div class="summary-label">最低产量地块</div>
-                <div class="summary-value">{{ currentResult.summary.minBlock }} ({{ currentResult.summary.minYield }} kg)</div>
+                <div class="summary-value">{{ currentResult.summary.minBlock }} ({{ formatYield(currentResult.summary.minYield) }} {{ currentResult.summary.unit || 'kg/100株' }})</div>
               </div>
             </div>
+          </div>
+          <div v-else class="result-summary">
+            <h4>预测结果摘要</h4>
+            <p class="no-summary">暂无摘要数据</p>
           </div>
 
           <!-- 可下载文件
@@ -124,7 +128,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { downloadResult } from '@/api/analysis'
 
@@ -139,23 +143,51 @@ const currentRunId = ref(null)
 
 // 当前结果详情
 const currentResult = computed(() => {
-  if (!currentRunId.value) return null
-  return history.value.find(r => r.runId === currentRunId.value)
+  console.log('[detail page] currentResult computed 被调用')
+  console.log('[detail page] currentRunId.value =', currentRunId.value)
+
+  if (!currentRunId.value) {
+    console.log('[detail page] currentRunId 为空，返回 null')
+    return null
+  }
+
+  const result = history.value.find(r => r.runId === currentRunId.value)
+  console.log('[detail page] 找到的 result =', result)
+  console.log('[detail page] result?.summary =', result?.summary)
+
+  return result
 })
 
 // 加载历史记录
 const loadHistory = () => {
+  console.log('[detail page] loadHistory 被调用')
+
   const stored = localStorage.getItem('analysisHistory')
+  console.log('[detail page] localStorage 中的原始数据长度 =', stored?.length || 0)
+
   if (stored) {
     history.value = JSON.parse(stored)
+    console.log('[detail page] 历史记录数量 =', history.value.length)
+
+    // 打印前3条记录的 summary
+    history.value.slice(0, 3).forEach((record, index) => {
+      console.log(`[detail page] 记录 ${index}: runId =`, record.runId)
+      console.log(`[detail page] 记录 ${index}: summary =`, record.summary)
+    })
+  } else {
+    console.log('[detail page] localStorage 中没有历史记录')
   }
 
   // 如果 URL 中有 runId，则显示该记录
   if (route.params.runId) {
     currentRunId.value = route.params.runId
+    console.log('[detail page] URL 中的 runId =', currentRunId.value)
   } else if (history.value.length > 0) {
     currentRunId.value = history.value[0].runId
+    console.log('[detail page] 使用最新记录的 runId =', currentRunId.value)
   }
+
+  console.log('[detail page] 当前选中的 runId =', currentRunId.value)
 }
 
 // 选择记录
@@ -183,7 +215,35 @@ const goToUpload = () => {
   router.push('/upload')
 }
 
+// 格式化产量数值（保持原始精度，不强制小数位数）
+const formatYield = (value) => {
+  console.log('[summary render] formatYield 被调用, value =', value)
+  if (value === null || value === undefined) return '-'
+  // 直接返回数值，让浏览器自然显示，不强制 toFixed
+  return Number(value)
+}
+
+// 监控 currentResult 的变化
+watch(currentResult, (newVal) => {
+  console.log('[summary render] currentResult 变化')
+  console.log('[summary render] currentResult =', newVal)
+  console.log('[summary render] currentResult?.summary =', newVal?.summary)
+
+  if (newVal?.summary) {
+    console.log('[summary render] summary 存在:')
+    console.log('[summary render]   avgYield =', newVal.summary.avgYield)
+    console.log('[summary render]   maxBlock =', newVal.summary.maxBlock)
+    console.log('[summary render]   maxYield =', newVal.summary.maxYield)
+    console.log('[summary render]   minBlock =', newVal.summary.minBlock)
+    console.log('[summary render]   minYield =', newVal.summary.minYield)
+    console.log('[summary render]   unit =', newVal.summary.unit)
+  } else {
+    console.log('[summary render] summary 不存在或为空')
+  }
+}, { immediate: true })
+
 onMounted(() => {
+  console.log('[detail page] onMounted 被调用')
   loadHistory()
 })
 </script>
@@ -477,6 +537,13 @@ onMounted(() => {
   font-size: 20px;
   font-weight: 600;
   color: #4CAF50; /* 豆绿色 */
+}
+
+.no-summary {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  padding: 20px;
 }
 
 .download-section {
