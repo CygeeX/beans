@@ -7,18 +7,18 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
  * @returns {Promise} 返回训练结果
  */
 export async function trainModel(formData) {
-  // 添加超时控制
+  // 设置25分钟超时（1500秒）
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 800000); // 800秒超时
+  const timeoutId = setTimeout(() => controller.abort(), 1500000); // 1500秒 = 25分钟
   
   try {
     const response = await fetch(`${API_BASE_URL}/train`, {
       method: 'POST',
       body: formData,
-      signal: controller.signal  // 添加 signal
+      signal: controller.signal
     });
 
-    clearTimeout(timeoutId);  // 请求完成，清除超时
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: '请求失败' }));
@@ -41,13 +41,13 @@ export async function trainModel(formData) {
     });
 
     return result;
-  } catch (error) {
-    clearTimeout(timeoutId);  // 发生错误也清除超时
     
-    // 处理超时错误
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
     if (error.name === 'AbortError') {
-      console.error('训练超时：请求超过120秒');
-      throw new Error('训练时间过长，请稍后重试或检查服务器状态');
+      console.error('训练超时：25分钟仍未完成');
+      throw new Error('训练时间过长（超过25分钟），建议使用历史记录查看或联系管理员');
     }
     
     console.error('训练模型失败:', error);

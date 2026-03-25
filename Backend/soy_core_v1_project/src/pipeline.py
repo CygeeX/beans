@@ -13,6 +13,7 @@
 import os
 import json
 import shutil
+from datetime import datetime
 
 from .io_utils import build_training_table, build_feature_table, make_advice_rules
 from .models import (
@@ -80,13 +81,46 @@ def run_train(ground_zip_path: str,
     plot_heatmap_grid(df_pred_cn, layout_csv_path, heatmap_path)
     plot_top_bottom_compare(df_train, df_pred_cn, compare_path)
 
-    # 5) 管理建议
-    advice = make_advice_rules(df_train, df_pred_cn)
+    # 5) 管理建议 - 从知识库获取
     advice_path = os.path.join(out_dir, "管理建议_中文.json")
-    with open(advice_path, "w", encoding="utf-8") as f:
-        json.dump(advice, f, ensure_ascii=False, indent=2)
 
-    # ✅ 注意：这里返回 model_out_path（run 的 outputs 下的 model.pkl）
+    try:
+        import sys
+        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+        from knowledge_base import get_advice_by_condition
+        
+        # 根据平均产量获取建议
+        avg_yield = df_pred_cn["预测产量(kg/100株)"].mean()
+        if avg_yield < 250:
+            condition = "低产"
+        elif avg_yield > 400:
+            condition = "高产"
+        else:
+            condition = "正常"
+        
+        advice_data = get_advice_by_condition(condition)
+        advice_list = advice_data.get("advice", [])
+        
+        field_advice = field_advice_data.get("advice", [])
+        
+        advice_results.append({
+            "field_id": field_id,
+            "yield_pred": float(yield_pred),
+            "condition": field_condition,
+            "advice": field_advice
+        })
+        
+        with open(advice_path, "w", encoding="utf-8") as f:
+            json.dump(advice_output, f, ensure_ascii=False, indent=2)
+        
+    except Exception as e:
+        print(f"从知识库获取建议失败: {e}")
+        # 回退到原有规则
+        advice = make_advice_rules(df_train, df_pred_cn)
+        with open(advice_path, "w", encoding="utf-8") as f:
+            json.dump(advice, f, ensure_ascii=False, indent=2)
+
+    # 注意：这里返回 model_out_path（run 的 outputs 下的 model.pkl）
     # 这样前端/Swagger 显示与 /result 下载逻辑完全一致
     return {
         "training_table": train_path,
@@ -133,7 +167,7 @@ def run_predict(ground_zip_path: str,
     metrics_path = os.path.join(out_dir, "展示指标_新版.json")
     
     # 尝试读取新的展示指标文件
-    NEW_EVAL_PATH = "/app/outputs/展示指标_新版.json"
+    NEW_EVAL_PATH = "/app/knowledge_base/展示指标_新版.json"
     if os.path.exists(NEW_EVAL_PATH):
         # 如果新文件存在，直接复制过来
         import shutil
@@ -185,13 +219,14 @@ def run_predict(ground_zip_path: str,
                 condition = "正常"
             
             # 从知识库获取建议
-            advice = get_advice_by_condition(condition)
+            advice_data = get_advice_by_condition(condition)
+            advice_list = advice_data.get("advice", [])
             
             advice_results.append({
                 "field_id": field_id,
                 "yield_pred": float(yield_pred),
                 "condition": condition,
-                "advice": advice.get("advice", [])
+                "advice": advice_list
             })
         
         # 保存建议到文件

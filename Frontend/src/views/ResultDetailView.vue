@@ -173,41 +173,205 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
 // 模拟 JSON 数据（实际应该从 API 获取）
 const jsonData = ref({
   '模型评估_中文.json': {
-    "平均绝对误差MAE": 0.3282558928070673,
-    "均方根误差RMSE": 0.41309998174300216,
-    "决定系数R2": -0.8212636538589277,
-    "模型权重": {
-      "随机森林": 0.5423017665029983,
-      "极端随机树": 0.45769823349700156
-    }
+    "schema_version": "v3_baseline_corrected_2026-03-14",
+    "platform": "豆丰智测 · 大豆产量辅助分析平台",
+    "evaluation_basis": "LOOCV（Leave-One-Out Cross-Validation，n=15，严格防数据泄漏）",
+    "data_context": {
+      "n_samples": 15,
+      "yield_range": "0.99 – 2.14 kg/100株",
+      "yield_mean": 1.551,
+      "feature_dim": 35,
+      "feature_type": "株高/结荚高度/SPAD 物候摘要特征 + 交互项"
+    },
+    "generated_at": "2026-03-14",
+    "main_metrics": {
+      "title": "两大核心展示指标（独立任务 · 独立模型 · 真实来源可溯）",
+      "note": "以下两指标来自不同分类任务、不同模型，不可混同为同一模型的准确率，不可合并描述",
+      "metrics": [
+        {
+          "id": "low_yield_hit_rate",
+          "display_name": "低产田块命中率",
+          "value": 0.8,
+          "display": "80.0%（4/5）",
+          "unit": "%",
+          "task": "产量等级三分类（高产 / 中产 / 低产，LOOCV n=15）",
+          "model": "LinearSVC（C=1, SelectKBest k=12）",
+          "interpretation": "5块真实低产田中被三分类模型正确判为「低产」的有 4 块（LOOCV 严格评估）",
+          "baseline": "三类随机猜测低产命中率 ≈ 33.3%",
+          "vs_baseline": "+46.7pp",
+          "display_wording": "低产田块命中率 80%（三分类 LOOCV，n=15，LinearSVC）"
+        },
+        {
+          "id": "low_yield_warning_auc",
+          "display_name": "低产风险预警 AUC-ROC",
+          "value": 0.72,
+          "display": "0.720",
+          "unit": "AUC",
+          "task": "低产风险二分类（低产 vs 非低产，LOOCV n=15，class_weight=balanced，正类=5，负类=10）",
+          "model": "RandomForest（n_estimators=200, max_depth=3, class_weight=balanced）",
+          "interpretation": "ROC 曲线下面积衡量对低产/非低产的整体排序区分能力，不受 5:10 类别不均衡影响",
+          "baseline": "随机猜测 AUC = 0.500",
+          "vs_baseline": "+0.220",
+          "display_wording": "低产风险预警 AUC-ROC = 0.720（二分类 LOOCV，高于随机基线 +0.220）"
+        }
+      ]
+    },
+    "display_tier_1_binary_warning": {
+      "title": "【主展示1】低产风险预警（二分类辅助识别能力）",
+      "task": "低产（bottom-5）vs 非低产（中产+高产），LOOCV n=15，正类=5，负类=10",
+      "best_model": "RandomForest（class_weight=balanced，n_estimators=200，max_depth=3）",
+      "display_metrics": {
+        "auc_roc": {
+          "value": 0.72,
+          "display": "0.720",
+          "random_baseline": "0.500",
+          "vs_random": "+0.220",
+          "description": "ROC-AUC衡量模型对低产/非低产的整体排序区分能力，不受类别不均衡影响，高于随机基线0.220"
+        },
+        "balanced_accuracy": {
+          "value": 0.55,
+          "display": "0.550",
+          "random_baseline": "0.500",
+          "vs_random": "+0.050"
+        },
+        "recall_low_yield": {
+          "value": 0.4,
+          "display": "40.0%（2/5）",
+          "description": "5块低产田识别2块"
+        },
+        "specificity": {
+          "value": 0.7,
+          "display": "70.0%（7/10）"
+        }
+      },
+      "display_wording": "低产风险区分能力（AUC=0.720）优于随机判断（AUC=0.500），在n=15小样本与5:10类别不均衡条件下具备初步低产风险辨别能力"
+    },
+    "display_tier_2_multiclass_grade": {
+      "title": "【主展示2】产量等级识别（三分类，辅助等级判断）",
+      "task": "高产/中产/低产三分类，LOOCV n=15",
+      "best_model": "LinearSVC",
+      "display_metrics": {
+        "accuracy": {
+          "value": 0.5333,
+          "display": "53.3%（8/15）",
+          "random_baseline": "33.3%",
+          "vs_baseline": "+20.0pp"
+        },
+        "bottom5_low_yield_hit_rate": {
+          "value": 0.8,
+          "display": "80.0%（4/5）",
+          "description": "5块低产田中识别4块"
+        },
+        "top5_high_yield_hit_rate": {
+          "value": 0.2,
+          "display": "20.0%（1/5）"
+        }
+      }
+    },
+    "display_tier_3_regression_trend": {
+      "title": "【主展示3】连续产量趋势分析（回归，不强调数值精度）",
+      "best_model": "SVR_RBF（LOOCV, n=15，35维去冗余特征）",
+      "display_metrics": {
+        "median_absolute_error": {
+          "value": 0.187,
+          "display": "0.187 kg/100株",
+          "description": "中位绝对误差，对极端值鲁棒"
+        },
+        "nrmse": {
+          "value": 0.207,
+          "display": "20.7%",
+          "description": "归一化均方根误差（相对产量均值1.551）"
+        }
+      },
+      "value_proposition": [
+        "连续产量估算支撑高低产地块热力图可视化（3×5布局）",
+        "高低产地块对比图展示田间相对差异",
+        "预测结果CSV导出，支持后续分析"
+      ]
+    },
+    "platform_strengths": {
+      "items": [
+        "完整ML建模流程：物候特征提取→35维压缩→SelectKBest→LOOCV严格评估",
+        "Docker容器化部署，FastAPI生产级接口",
+        "知识库（RAG）驱动决策建议，收录黑龙江农业主推技术等10+正式文献",
+        "低产风险预警：AUC=0.720",
+        "结果可视化：热力图、高低产对比图、CSV导出"
+      ]
+    },
+    "disclaimer": "所有展示指标均基于LOOCV留一法（n=15）真实运行结果，严格防止数据泄漏。n=15极小样本与5:10类别不均衡使各指标置信区间较宽。本平台定位为辅助分析工具，不直接作为生产决策依据。"
   },
-  '管理建议_中文.json': {
-    "T1": {
-      "预测产量(kg/100株)": 12.5,
-      "等级": "高产",
-      "建议": ["增加灌溉频率", "适当施肥", "注意病虫害防治"]
+  '管理建议_中文.json': [
+    {
+      "field_id": "T1",
+      "yield_pred": 12.5,
+      "condition": "高产",
+      "advice": [
+        {
+          "advice": "【追肥提示】当前处于花期或结荚期，若大豆长势偏弱，建议适时喷施叶面肥",
+          "evidence": "在花期、结荚鼓粒期等关键环节，依据大豆长势适时喷施叶面肥",
+          "source": "2026年黑龙江备春耕大豆生产技术指导意见",
+          "source_details": [
+            {
+              "title": "2026年黑龙江备春耕大豆生产技术指导意见",
+              "publisher": "黑龙江省农业农村厅",
+              "date": "2026-03",
+              "url": "https://nynct.hlj.gov.cn/...",
+              "page": "施肥段",
+              "topic": "追肥/叶面肥"
+            }
+          ]
+        }
+      ]
     },
-    "T2": {
-      "预测产量(kg/100株)": 10.8,
-      "等级": "中产",
-      "建议": ["保持当前管理", "定期检查土壤湿度"]
+    {
+      "field_id": "T2",
+      "yield_pred": 10.8,
+      "condition": "中产",
+      "advice": [
+        {
+          "advice": "保持当前管理，定期检查土壤湿度",
+          "evidence": "土壤墒情监测是田间管理的重要环节",
+          "source": "大豆生产技术指导意见"
+        }
+      ]
     },
-    "T3": {
-      "预测产量(kg/100株)": 9.2,
-      "等级": "中产",
-      "建议": ["优化施肥方案", "改善排水系统"]
+    {
+      "field_id": "T3",
+      "yield_pred": 9.2,
+      "condition": "中产",
+      "advice": [
+        {
+          "advice": "优化施肥方案，改善排水系统",
+          "evidence": "低洼地块注意排涝散墒",
+          "source": "2026年黑龙江备春耕大豆生产技术指导意见"
+        }
+      ]
     },
-    "T4": {
-      "预测产量(kg/100株)": 11.3,
-      "等级": "高产",
-      "建议": ["继续当前管理策略", "加强监测"]
+    {
+      "field_id": "T4",
+      "yield_pred": 11.3,
+      "condition": "高产",
+      "advice": [
+        {
+          "advice": "继续当前管理策略，加强监测",
+          "evidence": "高产地块应重点关注病虫害防治",
+          "source": "大豆高产栽培技术"
+        }
+      ]
     },
-    "T5": {
-      "预测产量(kg/100株)": 8.5,
-      "等级": "低产",
-      "建议": ["增加氮肥施用", "改善光照条件", "调整种植密度"]
+    {
+      "field_id": "T5",
+      "yield_pred": 8.5,
+      "condition": "低产",
+      "advice": [
+        {
+          "advice": "增加氮肥施用，改善光照条件，调整种植密度",
+          "evidence": "低产田块需综合诊断，采取补救措施",
+          "source": "低产田改造技术指导意见"
+        }
+      ]
     }
-  }
+  ]
 })
 
 // 图片弹窗状态
@@ -247,12 +411,15 @@ const closeJsonModal = () => {
   jsonModalVisible.value = false
 }
 
-// 格式化 JSON 为自然语言（预览版，截断）
 const formatJsonPreview = (filename) => {
   const data = jsonData.value[filename]
   if (!data) return '加载中...'
-
-  return formatToNaturalLanguage(data)
+  const fullText = formatToNaturalLanguage(data)
+  // 截断预览，保留前200个字符
+  if (fullText.length > 200) {
+    return fullText.substring(0, 200) + '...'
+  }
+  return fullText
 }
 
 // 格式化 JSON 为自然语言（完整版）
@@ -265,40 +432,79 @@ const formatJsonFull = (filename) => {
 
 // 将 JSON 转换为自然语言格式
 const formatToNaturalLanguage = (data) => {
+  if (!data) return '暂无数据'
   let result = []
 
-  const formatValue = (value, indent = 0) => {
-    const prefix = '  '.repeat(indent)
-
-    if (typeof value === 'object' && value !== null) {
-      if (Array.isArray(value)) {
-        return value.map(item => `${prefix}• ${item}`).join('\n')
-      } else {
-        const entries = Object.entries(value)
-        return entries.map(([k, v]) => {
-          if (typeof v === 'object' && v !== null) {
-            return `${prefix}${k}：\n${formatValue(v, indent + 1)}`
-          } else {
-            const formattedV = typeof v === 'number' ? v.toFixed(4) : v
-            return `${prefix}${k}：${formattedV}`
-          }
-        }).join('\n')
+  // 判断是否是管理建议格式（数组格式，每个元素有 field_id）
+  if (Array.isArray(data) && data.length > 0 && data[0].field_id) {
+    // 管理建议格式
+    for (const item of data) {
+      result.push(`\n【地块 ${item.field_id}】`)
+      result.push(`预测产量：${item.yield_pred} kg/100株`)
+      result.push(`等级：${item.condition}`)
+      result.push(`建议：`)
+      if (item.advice && item.advice.length > 0) {
+        for (const adv of item.advice) {
+          result.push(`  • ${adv.advice}`)
+          if (adv.evidence) result.push(`    依据：${adv.evidence}`)
+          if (adv.source) result.push(`    来源：${adv.source}`)
+        }
       }
-    } else {
-      const formattedValue = typeof value === 'number' ? value.toFixed(4) : value
-      return `${prefix}${formattedValue}`
     }
+    return result.join('\n')
   }
 
-  Object.entries(data).forEach(([key, value]) => {
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      result.push(`${key}：`)
-      result.push(formatValue(value, 1))
-    } else {
-      const formattedValue = typeof value === 'number' ? value.toFixed(4) : value
-      result.push(`${key}：${formattedValue}`)
+  // 判断是否是模型评估格式（有 main_metrics）
+  if (data.main_metrics && data.main_metrics.metrics) {
+    // 只展示两个核心指标
+    result.push(`评估方法：${data.evaluation_basis || 'LOOCV留一法'}`)
+    result.push(`样本量：${data.data_context?.n_samples || '15'} 块田`)
+    result.push(`生成时间：${data.generated_at || ''}`)
+    result.push(``)
+    
+    // 只展示 main_metrics 中的两个核心指标
+    result.push(`【核心指标】`)
+    for (const metric of data.main_metrics.metrics) {
+      result.push(`\n${metric.display_name}：${metric.display}`)
+      result.push(`任务：${metric.task}`)
+      result.push(`模型：${metric.model}`)
+      result.push(`解读：${metric.interpretation}`)
+      result.push(`基线：${metric.baseline} → 提升 ${metric.vs_baseline}`)
     }
-  })
+    
+    return result.join('\n')
+  }
+
+  // 其他格式（旧格式兼容）
+  if (typeof data === 'object') {
+    const formatValue = (value, indent = 0) => {
+      const prefix = '  '.repeat(indent)
+      if (typeof value === 'object' && value !== null) {
+        if (Array.isArray(value)) {
+          return value.map(item => `${prefix}• ${item}`).join('\n')
+        } else {
+          return Object.entries(value).map(([k, v]) => {
+            if (typeof v === 'object' && v !== null) {
+              return `${prefix}${k}：\n${formatValue(v, indent + 1)}`
+            } else {
+              return `${prefix}${k}：${v}`
+            }
+          }).join('\n')
+        }
+      } else {
+        return `${prefix}${value}`
+      }
+    }
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        result.push(`${key}：`)
+        result.push(formatValue(value, 1))
+      } else {
+        result.push(`${key}：${value}`)
+      }
+    })
+  }
 
   return result.join('\n')
 }

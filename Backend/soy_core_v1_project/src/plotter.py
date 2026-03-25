@@ -34,6 +34,12 @@ def setup_font():
 setup_font()
 
 
+def _setup_cn_font():
+    # 中文字体兼容：按顺序尝试
+    plt.rcParams["font.sans-serif"] = ["SimHei", "Microsoft YaHei", "Arial Unicode MS", "DejaVu Sans"]
+    plt.rcParams["axes.unicode_minus"] = False
+
+
 # 热力图生成：将15块田产量映射到3×5空间网格，绿色系配色，实线框标注Top3、虚线框标注Bottom3
 def plot_heatmap_grid(df_pred_cn: pd.DataFrame, layout_csv_path: str, out_png: str):
     '''
@@ -144,12 +150,56 @@ def plot_top_bottom_compare(df_train: pd.DataFrame, df_pred_cn: pd.DataFrame, ou
     ax.bar(x + width/2, bot_mean.values, width, label="低产组（Bottom3）", color="#9FD3A8")
 
     name_map = {
-        "spad_last": "末次SPAD均值",
-        "height_last": "末次株高均值",
-        "spad_trend": "SPAD变化趋势",
-        "height_trend": "株高变化趋势",
+        # SPAD 相关
+        "spad_mean_all": "SPAD整体均值",
+        "spad_mean_range": "SPAD极差",
+        "spad_mean_last_minus_first": "SPAD末期-初期差",
+        "spad_mean_slope": "SPAD变化斜率",
+        "spad_mean_early": "SPAD早期均值",
+        "spad_mean_mid": "SPAD中期均值",
+        "spad_mean_late": "SPAD后期均值",
+        "spad_mean_late_minus_early": "SPAD后期-早期差",
+        "spad_std_all": "SPAD标准差均值",
+        "spad_std_range": "SPAD标准差极差",
+        "spad_last": "末次SPAD值",
+        
+        # 株高相关
+        "height_mean_all": "株高整体均值",
+        "height_mean_range": "株高极差",
+        "height_mean_last_minus_first": "株高末期-初期差",
+        "height_mean_slope": "株高变化斜率",
+        "height_mean_early": "株高早期均值",
+        "height_mean_mid": "株高中期均值",
+        "height_mean_late": "株高后期均值",
+        "height_mean_late_minus_early": "株高后期-早期差",
+        "height_std_all": "株高标准差均值",
+        "height_std_range": "株高标准差极差",
+        
+        # 结荚高度相关
+        "pod_height_mean_all": "结荚高度整体均值",
+        "pod_height_mean_range": "结荚高度极差",
+        "pod_height_mean_last_minus_first": "结荚高度末期-初期差",
+        "pod_height_mean_slope": "结荚高度变化斜率",
+        "pod_height_mean_early": "结荚高度早期均值",
+        "pod_height_mean_mid": "结荚高度中期均值",
+        "pod_height_mean_late": "结荚高度后期均值",
+        "pod_height_mean_late_minus_early": "结荚高度后期-早期差",
+        "pod_height_std_all": "结荚高度标准差均值",
+        "pod_height_std_range": "结荚高度标准差极差",
+        
+        # 结构比值
+        "pod_ratio_all": "结荚高度/株高比值",
+        "pod_ratio_range": "比值极差",
+        "pod_ratio_last_minus_first": "比值末期-初期差",
+        "pod_ratio_late_minus_early": "比值后期-早期差",
+        
+        # 交互特征
+        "交互_SPADx高度_all": "SPAD×株高（整体）",
+        "交互_SPADx高度_late_minus_early": "SPAD×株高（后期-早期）",
+        "交互_SPADx占比_all": "SPAD×比值（整体）",
+        "交互_SPADx占比_late_minus_early": "SPAD×比值（后期-早期）",
     }
-    labels = [name_map.get(c, c) for c in feat_cols]
+    labels = [name_map.get(c, c.replace('_', ' ').title()) for c in feat_cols]
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=15, ha="right")
