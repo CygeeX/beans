@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(../Backend/soy_core_v1_project/test_summary.py:*)"
+    ]
+  }
+}

@@ -68,14 +68,25 @@
           :disabled="!canSubmit || isProcessing"
           @click="handleSubmit"
         >
-          {{ isProcessing ? '处理中...' : '开始分析' }}
+          <l-dot-stream
+            v-if="isProcessing"
+            size="60"
+            speed="2.5"
+            color="white"
+          ></l-dot-stream>
+          <span v-else>开始分析</span>
         </button>
       </div>
 
       <!-- 状态提示 -->
       <div v-if="status.message" class="status-message" :class="status.type">
         <div class="status-icon">
-          <span v-if="status.type === 'loading'">🔄</span>
+          <l-bouncy
+            v-if="status.type === 'loading'"
+            size="40"
+            speed="1.75"
+            color="#eab308"
+          ></l-bouncy>
           <span v-else-if="status.type === 'success'">✅</span>
           <span v-else-if="status.type === 'error'">❌</span>
         </div>
@@ -90,6 +101,10 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import FileUpload from '@/components/FileUpload.vue'
 import { trainModel, predictYield } from '@/api/analysis'
+import { dotStream, bouncy } from 'ldrs'
+
+dotStream.register()
+bouncy.register()
 
 const router = useRouter()
 
@@ -141,7 +156,7 @@ const handleSubmit = async () => {
       formData.append('layout', files.value.layout)
     }
 
-    status.value = { type: 'loading', message: '分析中，请稍候...' }
+    status.value = { type: 'loading', message: '预计10min-20min左右分析完毕，请等待...' }
 
     let response
     if (analysisType.value === 'predict') {
@@ -303,6 +318,10 @@ const handleSubmit = async () => {
   cursor: pointer;
   transition: all 0.3s;
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .submit-button:hover:not(:disabled) {
@@ -343,6 +362,10 @@ const handleSubmit = async () => {
 
 .status-icon {
   font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 45px;
 }
 
 .status-text {
