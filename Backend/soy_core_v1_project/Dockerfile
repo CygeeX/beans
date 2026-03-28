@@ -18,7 +18,14 @@ ENV LANG=C.UTF-8
 
 WORKDIR /app
 
-# 先装依赖
+
+# 先安装系统依赖和中文字体
+RUN apt-get update && apt-get install -y \
+    fonts-wqy-zenhei \
+    fonts-wqy-microhei \
+    && rm -rf /var/lib/apt/lists/*
+
+# 再装依赖
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
