@@ -1,22 +1,14 @@
 # beans
 
 #### 介绍
-**以下是 Gitee 平台说明，您可以替换此简介**
-
+预览 http://39.107.246.36
 
 #### 软件架构
-前端框架：vue3
-后端框架：
-模型框架：
-
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
+前端框架：vue3+vite
+后端框架：FastAPI 
+部署工具：Docker
 
 #### 使用说明
-
 1.  前端项目启动：
 进入Frontend目录 在终端输入 npm run dev
 2.  后端项目启动 
@@ -24,11 +16,4 @@
 进入\Backend\soy_core_v1_project> 
 终端输入 docker-compose up --build
 docker-compose up -d
-#### 特技
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
